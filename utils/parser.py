@@ -50,9 +50,12 @@ def parse_cardxabar(text: str) -> Optional[Transaction]:
             # Remove trailing ", UZ" or ", RU" etc.
             merchant = re.sub(r',\s*[A-Z]{2}\s*$', '', raw_merchant).strip()
 
-        # Datetime
-        dt_match = re.search(r'🕓\s*(\d{2}\.\d{2}\.\d{2}\s+\d{2}:\d{2})', text)
-        datetime_str = dt_match.group(1) if dt_match else ""
+        # Datetime — format: 02.03.26 21:33 → convert to 2026-03-02 21:33
+        dt_match = re.search(r'🕓\s*(\d{2})\.(\d{2})\.(\d{2})\s+(\d{2}:\d{2})', text)
+        datetime_str = ""
+        if dt_match:
+            day, month, year_short, time = dt_match.groups()
+            datetime_str = f"20{year_short}-{month}-{day} {time}"
 
         # Balance after payment
         balance_match = re.search(r'💵\s*([\d\s]+\.?\d*)\s*(UZS|USD|EUR|RUB)', text)
